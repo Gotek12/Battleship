@@ -14,6 +14,24 @@ pygame.display.set_caption("Statki")
 si = 40
 margin = 5
 
+shipsDictionary = {
+    "1": 4,
+    "2": 3,
+    "3": 2,
+    "4": 1
+}
+
+
+class Ship:
+    def __init__(self, sizeS, x, y, x2, y2, position="vertical"):
+        self.id = sizeS * x * y
+        self.sizeS = sizeS  # size of ship
+        self.x = x  # start position
+        self.y = y
+        self.x2 = x2  # end position
+        self.y2 = y2
+        self.position = position  # horizontal/vertical
+
 
 class Box:
     def __init__(self, x, y, add=0):
@@ -27,12 +45,12 @@ class Box:
     def draw(self, screen, focus=False):
         if self.foc:
             pygame.draw.rect(screen, BLACK,
-                         [self.add + margin + (margin + si) * self.y, margin + (margin + si) * self.x, si,
-                          si])
+                             [self.add + margin + (margin + si) * self.y, margin + (margin + si) * self.x, si,
+                              si])
         else:
             pygame.draw.rect(screen, self.color,
-                         [self.add + margin + (margin + si) * self.y, margin + (margin + si) * self.x, si,
-                          si])
+                             [self.add + margin + (margin + si) * self.y, margin + (margin + si) * self.x, si,
+                              si])
 
 
 class GameBoard():
@@ -56,8 +74,24 @@ p1 = GameBoard(0)
 p2 = GameBoard(460)
 
 lastPosition = [-1, -1]
+tabE = []
+for x, y in shipsDictionary.items():
+    for i in range(int(x)):
+        tabE.append(y)
+tabE.append(-1)
+
+
 
 def main():
+    # read how many ships must add
+    # total = 10
+    for i in range(len(tabE)):
+        print(tabE[i])
+
+    can = True
+    canSize = 0
+    iterator = 0
+
     global lastPosition
     done = False
     clock = pygame.time.Clock()
@@ -70,7 +104,6 @@ def main():
             y = pos[1]
             column = pos[0] // (si + margin)
             row = pos[1] // (si + margin)
-
             if pos[0] > 460:
                 column = (pos[0] - 460) // (si + margin)
 
@@ -79,7 +112,12 @@ def main():
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if pos[0] > 460:
-                    p2.grid[row][column].color = RED
+
+                    if can and tabE[iterator] != -1:
+                        iterator = iterator+1
+                        for i in range(tabE[iterator]):
+                            p2.grid[row + i][column].color = RED
+
 
             elif event.type == pygame.MOUSEMOTION:
                 # test for multiple stat
@@ -87,40 +125,35 @@ def main():
                     if pos[0] < 450 or pos[0] > 460:
                         if pos[0] > 460:
                             print(row, column)
+
                             if lastPosition[0] == row and lastPosition[1] == column:
-                                p2.grid[row][column].foc = True
 
-                                if row + 1 <= 9:
-                                    p2.grid[row+1][column].foc = True
+                                if row + tabE[iterator] <= 10:
+                                    can = True
+                                    for i in range(tabE[iterator]):
+                                        p2.grid[row + i][column].foc = True
+                                else:
+                                    # czytam aktualny row 9-row
+                                    for i in range(tabE[iterator]):
+                                        if i + row < 10:
+                                            p2.grid[row + i][column].foc = True
                             else:
-
+                                can = False
                                 p2.grid[lastPosition[0]][lastPosition[1]].foc = False
-                                if row + 1 < 9:
-                                    p2.grid[lastPosition[0]+1][lastPosition[1]].foc = False
+                                if row + tabE[iterator] < 10:
+                                    for i in range(tabE[iterator]):
+                                        if i + row < 10:
+                                            p2.grid[lastPosition[0] + i][lastPosition[1]].foc = False
 
                                 lastPosition = [row, column]
                 else:  # do poprawy
                     if lastPosition[0] != -1 and lastPosition[1] != -1:
                         p2.grid[lastPosition[0]][lastPosition[1]].foc = False
                         lastPosition = [-1, -1]
-                # if 0 < pos[0] < 910 and 0 < pos[1] < 450:
-                #     if pos[0] < 450 or pos[0] > 460:
-                #         if pos[0] > 460:
-                #             if lastPosition[0] == row and lastPosition[1] == column:
-                #                 p2.grid[row][column].foc = True
-                #             else:
-                #                 p2.grid[lastPosition[0]][lastPosition[1]].foc = False
-                #                 lastPosition = [row, column]
-                # else:  # do poprawy
-                #     if lastPosition[0] != -1 and lastPosition[1] != -1:
-                #         p2.grid[lastPosition[0]][lastPosition[1]].foc = False
-                #         lastPosition = [-1, -1]
 
-
-
-
-
+        # screen update
         screen.fill(BLACK)
+        # draw player1/2 gameboard
         p1.draw(screen)
         p2.draw(screen)
 
