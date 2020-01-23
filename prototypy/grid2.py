@@ -31,6 +31,7 @@ class Ship:
         self.y = y
         self.x2 = x2  # end position
         self.y2 = y2
+        self.blocked = False
         self.position = position  # horizontal/vertical
 
 
@@ -39,6 +40,7 @@ class Box:
         self.id = str(x) + " " + str(y)
         self.x = x
         self.y = y
+        self.blocked = False
         self.color = WHITE
         self.add = add
         self.foc = False
@@ -120,10 +122,21 @@ def main():
                 if pos[0] > 460:
 
                     if can and tabE[iterator] != -1:
+
+                        yes = True
                         for i in range(tabE[iterator]):
-                            p2.grid[row + i][column].color = RED
-                        iterator = iterator + 1
-                        can = False
+                            if not p2.grid[row + i][column].blocked:
+                                yes = False
+                                can = False
+                                break
+
+                        if not yes:
+                            for i in range(tabE[iterator]):
+                                p2.grid[row + i][column].foc = False
+                                p2.grid[row + i][column].blocked = True
+                                p2.grid[row + i][column].color = RED
+                            iterator = iterator + 1
+                            can = False
 
                 if pos[0] < 450 and tabE[iterator] == -1:
                     p1.grid[row][column].color = GREEN
@@ -152,12 +165,11 @@ def main():
                                     for i in range(tabE[iterator]):
                                         p2.grid[row + i][column].foc = True
                                 else:
-                                    can = False
                                     for i in range(tabE[iterator]):
                                         if i + row < 10:
                                             p2.grid[row + i][column].foc = True
+                                    can = False
                             else:
-                                can = False
                                 p2.grid[lastPosition[0]][lastPosition[1]].foc = False
                                 if row + tabE[iterator] < 10:
                                     for i in range(tabE[iterator]):
