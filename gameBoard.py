@@ -1,38 +1,134 @@
+#!/usr/bin/python3
+# -*- coding: iso-8859-2 -*-
 import pygame
-import os
+from enum import Enum
+
+# Define some colors
+pygame.init()
+SIZE = 10
+
+# tymczasowe wy¶wietlanie
+size = (920, 510)
+screen = pygame.display.set_mode(size)
+# ustawienia kafelka
+width = 40
+height = 40
+margin = 2
+clock = pygame.time.Clock()
+
+class BoxOpt(Enum):
+    SHIP = [False, True]    # czy statek
+    HIT = [False, True]   # czy trafiony
+    WRECK = [False, True]  # czy zatopiony
+    SET = [False, True]  # czy mo¿na go tu ustawiæ
+
+class Color(Enum):
+    BLACK = (0, 0, 0)  # gdy najedziemy myszk±
+    WHITE = (255, 255, 255)  # morze
+    GREEN = (0, 255, 0)  # mo¿na dodaæ
+    RED = (255, 0, 0)  # nie mo¿na dodaæ, trafiony
+    BLUE = (30, 144, 255)  # nie trafiony
+    BLUEDED = (20, 164, 225)  # ca³y statek zatopiony
+    SHIPCOLOR = (148, 148, 135)  # statek
+
+class Box:
+
+    def __init__(self, x, y, who, add):
+        self.width = 40
+        self.add= add
+        self.height = 40
+        self.pos = [x, y]
+        self.who = who  # czy gracz, czy przeciwnik
+        self.settings = [
+            BoxOpt.SHIP.value[0],
+            BoxOpt.HIT.value[0],
+            BoxOpt.WRECK.value[0],
+            BoxOpt.SET.value[0]
+        ]
+
+    # rysowanie pojedynczego kafelka
+    def draw(self, screen, color):
+        pygame.draw.rect(screen, color, [self.add + margin + (margin + self.width) * self.pos[1], margin + (margin + self.height) * self.pos[0], self.width, self.height])
+
+    # rysowanie kafelka w zale¿no¶ci od opcji
+    def drawBox(self, screen, over = False):
+
+        if over:
+            self.draw(screen, Color.BLACK.value)
+        elif self.settings[0]:
+            if self.settings[2]:
+                self.draw(screen, Color.BLUEDED.value)
+            elif self.settings[1]:
+                self.draw(screen, Color.RED.value)
+            elif self.settings[3]:
+                self.draw(screen, Color.SHIPCOLOR.value)
+        else:
+            if self.settings[1]:
+                self.draw(screen, Color.BLUE.value)
 
 
-class Menu():
-    width = 800
-    height = 500
-    white = (255, 255, 255)
-    dark = (0, 0, 0)
-    blue = (0, 0, 255)
 
-    def __init__(self):
-        pygame.init()
-        # ustawienie parametrÃ³w ekranu
-        self.screen = pygame.display.set_mode((self.width, self.height))
-        pygame.display.set_caption(" Statki")
-        self.screen.fill(self.white)
+class GameBoard:
 
-        ico = pygame.image.load("images/ship_icon.png")
-        pygame.display.set_icon(ico)
+    def __init__(self, add = 0, who = 0):
+        # pusta tablica 2d
+        self.board = [[0 for x in range(SIZE)] for y in range(SIZE)]
+        self.add = add
+        self.who = who
+
+        #  tworzenie pustej planszy 10x10
+        for i in range(SIZE):
+            for j in range(SIZE):
+                color = Color.WHITE.value
+                box = Box(i, j, who, add)
+                self.board[i][j] = box
+                box.drawBox(screen)
+                # pygame.draw.rect(screen, color,
+                #              [margin + (margin + width) * j, margin + (margin + height) * i, width,
+                #               height])
 
 
-    def main(self):
+    # tymczasowa funkcja odpalaj±ca grida
+    def run(self):
         while True:
-
             for event in pygame.event.get():
                 # zamykamy program
                 if event.type == pygame.QUIT:
                     print("End game")
                     exit()
 
-            # aktualizacja caÅ‚ego ekranu
-            pygame.display.update()
+                # obs³uga klikania
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    column = pos[0] // (width + margin)
+                    row = pos[1] // (height + margin)
+                    print("Click ", pos, "Grid coordinates: ", row, column)
+                    self.board[row][column] = 1
 
+            # --- Game logic should go here
+            # pobieranie pozycji
+            pos = pygame.mouse.get_pos()
+            x = pos[0]
+            y = pos[1]
 
-game = Menu()
+            #czyszczenie obrazu
+            screen.fill(Color.BLACK.value)
+
+            # update 2d array
+            for i in range(SIZE):
+                for j in range(SIZE):
+                    if self.board[i][j] == 1:
+                        color = Color.GREEN.value
+                    else:
+                        color = Color.WHITE.value
+                    pygame.draw.rect(screen, color,
+                                     [margin + (margin + width) * j, margin + (margin + height) * i, width,
+                                      height])
+
+                    # od¶wie¿anie ekranu
+            pygame.display.flip()
+            clock.tick(60)
+
+g = GameBoard()
 while True:
-    game.main()
+    g.run()
+
