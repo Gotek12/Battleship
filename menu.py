@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+# -*- coding: iso-8859-2 -*-
 import pygame
 import os
 
@@ -10,7 +12,7 @@ class Menu():
 
     def __init__(self):
         pygame.init()
-        # ustawienie parametr√≥w ekranu
+        # ustawienie parametrÛw ekranu
         self.screen = pygame.display.set_mode((self.width, self.height))
         pygame.display.set_caption(" Statki")
         self.screen.fill(self.white)
@@ -54,13 +56,13 @@ class Menu():
         rec1 = pygame.draw.rect(self.screen, self.blue, (160, 450, 170, 50))
         self.screen.blit(playBtn, (205, 455))
 
-        opis = ["Gra planszowa dla 2 os√≥b. Ka≈ºda osoba posiada 2",
-                "planszƒô 10 x 10. Kolumny opisujemy literami",
+        opis = ["Gra planszowa dla 2 osÛb. Kaøda osoba posiada 2",
+                "planszÍ 10 x 10. Kolumny opisujemy literami",
                 "alfabetu od a od j, a wiersze cyframi od 1 do 10.",
                 "Na jednej zaznaczamy swoje statki, a na drugiej",
                 "statki przeciwnika.",
                 "                                               ",
-                "Ka≈ºda osoba posiada:                           ",
+                "Kaøda osoba posiada:                           ",
                 "- 4 jednomasztwoce",
                 "- 3 dwumasztowce",
                 "- 2 trzymasztowce,",
@@ -77,7 +79,8 @@ class Menu():
         menu = self.menu()
         zasadyBt = None
 
-        while True:
+        run_menu = True
+        while run_menu:
 
             for event in pygame.event.get():
                 # zamykamy program
@@ -85,13 +88,14 @@ class Menu():
                     print("End game")
                     exit()
 
-                # obs≈Çuga menu
+                # obs≥uga menu
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     xPos, yPos = event.pos
                     if menu[0].collidepoint((xPos, yPos)) and ifMenu:
                         print("Graj")
                         pygame.display.iconify()
                         os.system("python3 gameBoard.py")
+                        run_menu = False
 
                     if menu[1].collidepoint((xPos, yPos)) and ifMenu:
                         ifMenu = False
@@ -107,12 +111,12 @@ class Menu():
 
                     if not zasadyBt is None:
                         if zasadyBt.collidepoint((xPos, yPos)):
-                            print("Powr√≥t do menu")
+                            print("PowrÛt do menu")
                             self.screen.fill(self.white)
                             menu = self.menu()
                             ifMenu = True
 
-            # aktualizacja ca≈Çego ekranu
+            # aktualizacja ca≥ego ekranu
             pygame.display.update()
 
 game = Menu()
